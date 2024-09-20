@@ -136,6 +136,7 @@ func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project K
 	} else {
 		secret.Data = TransformStringStringMapValuesToByteArray(data)
 
+		// TODO remove timeout label
 		for key, value := range labels {
 			secret.Labels[key] = value
 		}

@@ -7,7 +7,7 @@ image:
 
 cleanup:
   removed:
-    enabled: true
+    enabled: false
   timeout:
     enabled: false
     timeout: "30s"
