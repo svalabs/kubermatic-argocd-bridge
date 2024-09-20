@@ -1,0 +1,44 @@
+refreshInterval: "60s"
+image:
+  registry: registry.finks.cloud/library/kubermatic-argocd-bridge
+  tag: 0.0.1-beta
+  imagePullPolicy: IfNotPresent
+  # pullSecret: ""
+
+cleanup:
+  removed:
+    enabled: true
+  timeout:
+    enabled: false
+    timeout: "30s"
+
+kkp:
+  auth:
+    # If serviceAccount is disabled and kubeconfig is not provided via secret, $KUBECONFIG and $HOME/.kube/config will be tried
+    serviceAccount: true
+    kubeconfig: { }
+      # secretName: "kkp-kubeconfig"
+      # secretKey: "kubeconfig"
+argo:
+  namespace: "argocd"
+  auth:
+    # If serviceAccount is disabled and kubeconfig is not provided via secret, $KUBECONFIG and $HOME/.kube/config will be tried
+    serviceAccount: true
+    kubeconfig: { }
+      # secretName: "argo-kubeconfig"
+      # secretKey: "kubeconfig"
+
+serviceAccount:
+  create: true
+  name: "kkp-argo-bridge-sa"
+  rbacCreate: true
+
+
+clusterSecretTemplate: { }
+  # configmapName: "cluster-secret-template-cm"
+  # configmapKey: "secret-template.yaml"
+  # create: true
+  # Checkout https://github.com/svalabs/kubermatic-argocd-bridge/blob/main/cmd/template/cluster-secret.yaml for a base configuration
+  # content: |
+    # name: "usercluster-{{ .UserCluster.ID }}"
+    # ...

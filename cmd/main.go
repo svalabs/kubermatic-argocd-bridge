@@ -13,16 +13,24 @@ import (
 	"time"
 )
 
+// Default cluster secret template
+//
 //go:embed template/cluster-secret.yaml
 var defaultClusterSecretTemplate string
 
 func main() {
 
 	kkpKubeConfigPath := flag.String("kkp-kubeconfig", "", "Provide the path to the KKP KubeConfig")
+	kkpServiceAccount := flag.Bool("kkp-serviceaccount", true, "If the default service account should be used for kkp connection")
 	argoKubeConfigPath := flag.String("argo-kubeconfig", "", "Provide the path to the KKP KubeConfig")
+	argoServiceAccount := flag.Bool("argo-serviceaccount", true, "If the default service account should be used for the argocd connection")
 	argoCdNamespace := flag.String("argo-namespace", "argocd", "ArgoCD Namespace")
 	refreshInterval := flag.Duration("refresh-interval", 60*time.Second, "Refresh interval")
 	clusterSecretTemplateFlag := flag.String("cluster-secret-template", "", "Cluster Secret Template file")
+	cleanupRemovedClusters := flag.Bool("cleanup-removed-clusters", false, "Cleanup removed clusters")
+	cleanupTimedClusters := flag.Bool("cleanup-timed-clusters", false, "Cleanup clusters from removed/unavailable clusters")
+	clusterTimeoutTime := flag.Duration("cluster-timeout-time", 30*time.Second, "Time before a cluster gets deleted, when cleanup-timed-clusters is enabled ")
+
 	flag.Parse()
 
 	clusterSecretTemplate := defaultClusterSecretTemplate
@@ -38,16 +46,16 @@ func main() {
 		}
 	}
 
-	kkpKubeConfig, err := GetKubeConfig(*kkpKubeConfigPath)
+	kkpKubeConfig, err := GetKubeConfig(*kkpKubeConfigPath, *kkpServiceAccount)
 	if err != nil {
 		log.Fatal("Failed to generate KKP KubeConfig: ", err)
 	}
-	argoKubeConfig, err := GetKubeConfig(*argoKubeConfigPath)
+	argoKubeConfig, err := GetKubeConfig(*argoKubeConfigPath, *argoServiceAccount)
 	if err != nil {
 		log.Fatal("Failed to generate Argo KKP KubeConfig: ", err)
 	}
 
-	kkpArgoBridge, err := bridge.NewBridge(kkpKubeConfig, argoKubeConfig, *argoCdNamespace, *refreshInterval, clusterSecretTemplate)
+	kkpArgoBridge, err := bridge.NewBridge(kkpKubeConfig, argoKubeConfig, *argoCdNamespace, *refreshInterval, clusterSecretTemplate, *cleanupRemovedClusters, *cleanupTimedClusters, *clusterTimeoutTime)
 
 	if err != nil {
 		log.Fatal("Failed to initiate bridge", err)
@@ -56,16 +64,20 @@ func main() {
 	kkpArgoBridge.Connect()
 }
 
-func GetKubeConfig(kubeConfigPath string) (*restclient.Config, error) {
+func GetKubeConfig(kubeConfigPath string, useServiceAccount bool) (*restclient.Config, error) {
 	if len(kubeConfigPath) > 0 {
 		return clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 	}
-	log.Println("Trying Service Account")
-	config, err := restclient.InClusterConfig()
-	if err != nil {
-		log.Println("No service Account found trying default kubeconfig: ", err)
-	} else {
-		return config, nil
+
+	if useServiceAccount {
+		log.Println("Using Service Account")
+		config, err := restclient.InClusterConfig()
+		if err != nil {
+			log.Println("No service Account found trying default kubeconfig: ", err)
+			return nil, err
+		} else {
+			return config, nil
+		}
 	}
 
 	kubeConfigPath = os.Getenv("KUBECONFIG")
@@ -75,7 +87,6 @@ func GetKubeConfig(kubeConfigPath string) (*restclient.Config, error) {
 		}
 	}
 
-	log.Println(kubeConfigPath)
 	return clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 
 }

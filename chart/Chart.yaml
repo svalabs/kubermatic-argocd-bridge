@@ -1,0 +1,18 @@
+apiVersion: v2
+name: kubermatic-argocd-bridge
+version: 0.0.1-beta
+appVersion: 0.0.1-beta
+description: Imports KKP UserClusters into your argocd instance
+type: application
+keywords:
+  - ArgoCD
+  - Kubermatic
+  - KKP
+home: https://github.com/svalabs/kubermatic-argocd-bridge
+sources:
+  - https://github.com/svalabs/kubermatic-argocd-bridge
+maintainers:
+  - name: Kai Fink
+    email: mail@kaifink.me
+    url: https://github.com/4ch3los
+

@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-bridge
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: kubermatic-argocd-bridge
+spec:
+  selector:
+    matchLabels:
+      app: kubermatic-argocd-bridge
+  template:
+    metadata:
+      labels:
+        app: kubermatic-argocd-bridge
+    spec:
+      {{ if or .Values.kkp.auth.serviceAccount .Values.argo.auth.serviceAccount }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{ end }}
+      containers:
+        - command:
+            - /usr/local/bin/kubermatic-argocd-bridge
+          args:
+            - "-kkp-serviceaccount={{ .Values.kkp.auth.serviceAccount }}"
+            - "-argo-serviceaccount={{ .Values.argo.auth.serviceAccount }}"
+            - "-argo-namespace={{ .Values.argo.namespace }}"
+            - "-refresh-interval={{ .Values.refreshInterval }}"
+            - "-cleanup-removed-clusters={{ .Values.cleanup.removed.enabled }}"
+            - "-cleanup-timed-clusters={{ .Values.cleanup.timeout.enabled }}"
+            - "-cluster-timeout-time={{ .Values.cleanup.timeout.timeout }}"
+            {{ if and .Values.kkp.auth.kubeconfig.secretName .Values.kkp.auth.kubeconfig.secretKey }}
+            - "-kkp-kubeconfig=/etc/kubeconfig-kkp"
+            {{ end }}
+            {{ if and .Values.argo.auth.kubeconfig.secretName .Values.argo.auth.kubeconfig.secretKey }}
+            - "-argo-kubeconfig=/etc/kubeconfig-argo"
+            {{ end }}
+            {{ if and .Values.clusterSecretTemplate.configmapName .Values.clusterSecretTemplate.configmapKey }}
+            - "-cluster-secret-template=/etc/cluster-secret-template.yaml"
+            {{ end }}
+          image: "{{ .Values.image.registry }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+          name: kubermatic-argocd-bridge
+          {{ if or (and .Values.kkp.auth.kubeconfig.secretName .Values.kkp.auth.kubeconfig.secretKey)  (and .Values.argo.auth.kubeconfig.secretName .Values.argo.auth.kubeconfig.secretKey)  (and .Values.clusterSecretTemplate.configmapName .Values.clusterSecretTemplate.configmapKey)}}
+          volumeMounts:
+            {{ if and .Values.kkp.auth.kubeconfig.secretName .Values.kkp.auth.kubeconfig.secretKey }}
+            - name: secret-kkp-kubeconfig
+              mountPath: "/etc/kubeconfig-kkp"
+              subPath: "{{ .Values.kkp.auth.kubeconfig.secretKey }}"
+            {{ end }}
+            {{ if and .Values.argo.auth.kubeconfig.secretName .Values.argo.auth.kubeconfig.secretKey }}
+            - name: secret-argo-kubeconfig
+              mountPath: "/etc/kubeconfig-argo"
+              subPath: "{{ .Values.argo.auth.kubeconfig.secretKey }}"
+            {{ end }}
+            {{ if and .Values.clusterSecretTemplate.configmapName .Values.clusterSecretTemplate.configmapKey }}
+            - name: cm-secret-template
+              mountPath: "/etc/cluster-secret-template.yaml"
+              subPath: "{{ .Values.clusterSecretTemplate.configmapKey }}"
+            {{ end }}
+          {{ end }}
+      {{ if .Values.image.pullSecret }}
+      imagePullSecrets:
+        - name: "{{ .Values.image.pullSecret }}"
+      {{ end }}
+      {{ if or .Values.kkp.auth.kubeconfig.secretName .Values.argo.auth.kubeconfig.secretName .Values.clusterSecretTemplate.configmapName }}
+      volumes:
+        {{ if .Values.kkp.auth.kubeconfig.secretName }}
+        - name: secret-kkp-kubeconfig
+          secret:
+            secretName: "{{ .Values.kkp.auth.kubeconfig.secretName }}"
+        {{ end }}
+        {{ if .Values.argo.auth.kubeconfig.secretName }}
+        - name: secret-argo-kubeconfig
+          secret:
+            secretName: "{{ .Values.argo.auth.kubeconfig.secretName }}"
+        {{ end }}
+        {{ if .Values.clusterSecretTemplate.configmapName }}
+        - name: cm-secret-template
+          configMap:
+            name: {{ .Values.clusterSecretTemplate.configmapName }}
+        {{ end }}
+      {{ end }}

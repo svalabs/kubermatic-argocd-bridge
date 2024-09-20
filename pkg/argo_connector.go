@@ -45,7 +45,7 @@ func (connector *ArgoConnector) VerifyNamespace() error {
 
 func (connector *ArgoConnector) CurrentClusters() ([]v1.Secret, error) {
 	list, err := connector.client.CoreV1().Secrets(connector.namespace).List(context.TODO(), metav1.ListOptions{
-		LabelSelector: /*ARGO_CLUSTER_LABEL + "," + */ BASE_LABEL + "/managed=true",
+		LabelSelector: ARGO_CLUSTER_LABEL + "," + BASE_LABEL + "/managed=true",
 	})
 
 	if err != nil {
@@ -54,12 +54,10 @@ func (connector *ArgoConnector) CurrentClusters() ([]v1.Secret, error) {
 	return list.Items, err
 }
 
-func (connector *ArgoConnector) StoreClusters(userClusters []UserCluster, connectedSeeds []KKPSeed, projects []KKPProject) error {
-	/*currentClusters*/ _, err := connector.CurrentClusters()
-	if err != nil {
-		return err
-	}
-
+/**
+ * Store the provided clusters inside ArgoCD
+ */
+func (connector *ArgoConnector) StoreClusters(userClusters []UserCluster, projects []KKPProject) error {
 	reconciled := 0
 
 	for _, userCluster := range userClusters {
@@ -86,6 +84,9 @@ func (connector *ArgoConnector) StoreClusters(userClusters []UserCluster, connec
 	return nil
 }
 
+/**
+ * Builds the desired Secret and stores in inside the cluster
+ */
 func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project KKPProject) error {
 
 	filledTemplateRaw, err := connector.ParseTemplate(userCluster, project)
@@ -150,18 +151,48 @@ func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project K
 	return nil
 }
 
+/**
+ * Accessable data during templating
+ */
 type TemplateData struct {
 	UserCluster UserCluster
 	BaseLabel   string
 	KubeConfig  restclient.Config
 	Project     KKPProject
+	Labels      map[string]string
 }
 
+/**
+ * Takes the provided Secret Template and renders it with different supported data
+ */
 func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project KKPProject) (interface{}, error) {
 	kubeconfig, err := clientcmd.RESTConfigFromKubeConfig(userCluster.kubeconfig)
 
 	if err != nil {
 		return nil, err
+	}
+	labels := map[string]string{}
+
+	if project.RawData["metadata"].(map[string]interface{})["labels"] != nil {
+		projectLabels, err := FlattenToStringStringMap(project.RawData["metadata"].(map[string]interface{})["labels"])
+		if err != nil {
+			return nil, err
+		}
+
+		for k, v := range projectLabels {
+			labels[k] = v
+		}
+	}
+
+	if userCluster.RawData["metadata"].(map[string]interface{})["labels"] != nil {
+		clusterLabels, err := FlattenToStringStringMap(userCluster.RawData["metadata"].(map[string]interface{})["labels"])
+		if err != nil {
+			return nil, err
+		}
+
+		for k, v := range clusterLabels {
+			labels[k] = v
+		}
 	}
 
 	data := &TemplateData{
@@ -169,6 +200,7 @@ func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project K
 		BaseLabel:   BASE_LABEL,
 		KubeConfig:  *kubeconfig,
 		Project:     project,
+		Labels:      labels,
 	}
 
 	buf := &bytes.Buffer{}
@@ -187,6 +219,21 @@ func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project K
 	return config, nil
 }
 
+/**
+ *
+ */
+func (connector *ArgoConnector) RemoveCluster(cluster v1.Secret) error {
+	return connector.client.CoreV1().Secrets(connector.namespace).Delete(context.TODO(), cluster.ObjectMeta.Name, metav1.DeleteOptions{})
+}
+
+func (connector *ArgoConnector) UpdateCluster(cluster v1.Secret) error {
+	_, err := connector.client.CoreV1().Secrets(connector.namespace).Update(context.TODO(), &cluster, metav1.UpdateOptions{})
+	return err
+}
+
+/**
+ * Flattens a map[string]interface{} to a map[string]string by converting all non string values via json
+ */
 func FlattenToStringStringMap(config interface{}) (map[string]string, error) {
 	flattened := map[string]string{}
 
@@ -218,6 +265,9 @@ func FlattenToStringStringMap(config interface{}) (map[string]string, error) {
 	return flattened, nil
 }
 
+/**
+ * Converts a string-string map to string-byte, to be able to use it as secretdata
+ */
 func TransformStringStringMapValuesToByteArray(values map[string]string) map[string][]byte {
 	output := map[string][]byte{}
 

@@ -1,0 +1,6 @@
+kubeconfig
+.idea
+README.md
+Dockerfile
+chart
+*.tgz

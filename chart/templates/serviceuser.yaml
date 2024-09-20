@@ -1,0 +1,6 @@
+{{ if and (or .Values.kkp.auth.serviceAccount .Values.argo.auth.serviceAccount) .Values.serviceAccount.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.serviceAccount.name }}
+{{ end }}

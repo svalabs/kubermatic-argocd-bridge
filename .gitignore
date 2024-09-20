@@ -2,3 +2,4 @@
 
 kubermatic-argocd-bridge
 kubeconfig
+*.tgz
