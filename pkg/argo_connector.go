@@ -18,6 +18,11 @@ import (
 )
 
 const BASE_LABEL string = "kubermatic-argocd-bridge"
+const TIMEOUT_START_LABEL = BASE_LABEL + "/timeout-start"
+const MANAGED_LABEL = BASE_LABEL + "/managed"
+const CLUSTER_ID_LABEL = BASE_LABEL + "/cluster-id"
+const SEED_LABEL = BASE_LABEL + "/seed"
+
 const ARGO_CLUSTER_LABEL string = "argocd.argoproj.io/secret-type=cluster"
 
 type ArgoConnector struct {
@@ -45,7 +50,7 @@ func (connector *ArgoConnector) VerifyNamespace() error {
 
 func (connector *ArgoConnector) CurrentClusters() ([]v1.Secret, error) {
 	list, err := connector.client.CoreV1().Secrets(connector.namespace).List(context.TODO(), metav1.ListOptions{
-		LabelSelector: ARGO_CLUSTER_LABEL + "," + BASE_LABEL + "/managed=true",
+		LabelSelector: ARGO_CLUSTER_LABEL + "," + MANAGED_LABEL + "=true",
 	})
 
 	if err != nil {
@@ -143,7 +148,7 @@ func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project K
 			secret.Annotations[key] = value
 		}
 
-		delete(secret.Labels, BASE_LABEL+"/timeout-start")
+		delete(secret.Labels, TIMEOUT_START_LABEL)
 
 		_, err := connector.client.CoreV1().Secrets(connector.namespace).Update(ctx, secret, metav1.UpdateOptions{})
 

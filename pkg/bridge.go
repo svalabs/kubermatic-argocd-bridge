@@ -162,15 +162,15 @@ func (bridge *KKPArgoBridge) CleanupClusters(argoConnector *ArgoConnector, userC
 
 clusters:
 	for _, existingCluster := range clusters {
-		clusterID := existingCluster.ObjectMeta.Labels[BASE_LABEL+"/cluster-id"]
+		clusterID := existingCluster.ObjectMeta.Labels[CLUSTER_ID_LABEL]
 		if len(clusterID) == 0 {
-			log.Println("Invalid existing Cluster Secret(missing "+BASE_LABEL+"/cluster-id label)", existingCluster.ObjectMeta.Name)
+			log.Println("Invalid existing Cluster Secret(missing "+CLUSTER_ID_LABEL+" label)", existingCluster.ObjectMeta.Name)
 			continue
 		}
-		seedName := existingCluster.ObjectMeta.Labels[BASE_LABEL+"/seed"]
+		seedName := existingCluster.ObjectMeta.Labels[SEED_LABEL]
 
 		if len(seedName) == 0 {
-			log.Println("Invalid existing Cluster Secret(missing "+BASE_LABEL+"/seed label)", existingCluster.ObjectMeta.Name)
+			log.Println("Invalid existing Cluster Secret(missing "+SEED_LABEL+" label)", existingCluster.ObjectMeta.Name)
 			continue
 		}
 
@@ -194,9 +194,9 @@ clusters:
 		}
 
 		if bridge.cleanupTimedClusters {
-			timeoutStart := existingCluster.ObjectMeta.Labels[BASE_LABEL+"/timeout-start"]
+			timeoutStart := existingCluster.ObjectMeta.Labels[TIMEOUT_START_LABEL]
 			if len(timeoutStart) == 0 {
-				existingCluster.ObjectMeta.Labels[BASE_LABEL+"/timeout-start"] = strconv.FormatInt(time.Now().UnixMilli(), 10)
+				existingCluster.ObjectMeta.Labels[TIMEOUT_START_LABEL] = strconv.FormatInt(time.Now().UnixMilli(), 10)
 				err = argoConnector.UpdateCluster(existingCluster)
 				if err != nil {
 					log.Println("Failed to add timeout start to", existingCluster.ObjectMeta.Name, err)
@@ -205,7 +205,7 @@ clusters:
 			} else {
 				startMillis, err := strconv.ParseInt(timeoutStart, 10, 64)
 				if err != nil {
-					log.Println("Failed to parse timeout start ("+BASE_LABEL+"/timeout-start)", timeoutStart)
+					log.Println("Failed to parse timeout start ("+TIMEOUT_START_LABEL+")", timeoutStart)
 					continue clusters
 				}
 				if time.Since(time.UnixMilli(startMillis)) > bridge.clusterTimeout {
