@@ -1,6 +1,6 @@
 refreshInterval: "60s"
 image:
-  registry: registry.finks.cloud/library/kubermatic-argocd-bridge
+  registry: ghcr.io/svalabs/kubermatic-argocd-bridge
   tag: 0.0.1-beta
   imagePullPolicy: IfNotPresent
   # pullSecret: ""

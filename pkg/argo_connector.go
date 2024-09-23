@@ -136,13 +136,14 @@ func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project K
 	} else {
 		secret.Data = TransformStringStringMapValuesToByteArray(data)
 
-		// TODO remove timeout label
 		for key, value := range labels {
 			secret.Labels[key] = value
 		}
 		for key, value := range annotations {
 			secret.Annotations[key] = value
 		}
+
+		delete(secret.Labels, BASE_LABEL+"/timeout-start")
 
 		_, err := connector.client.CoreV1().Secrets(connector.namespace).Update(ctx, secret, metav1.UpdateOptions{})
 
