@@ -69,7 +69,7 @@ func (seed *KKPSeed) GetUserClusters() ([]UserCluster, error) {
 		kubeConfigSecret, err := seed.staticClient.CoreV1().Secrets(nameSpace).Get(context.TODO(), "admin-kubeconfig", metav1.GetOptions{})
 
 		if err != nil {
-			log.Println("Failed to get UserCluster Kubeconfig", kubeConfigSecret)
+			log.Printf("Failed to get UserCluster Kubeconfig %s.%s\n", nameSpace, kubeConfigSecret)
 			continue
 		}
 

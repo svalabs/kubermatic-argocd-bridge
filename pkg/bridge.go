@@ -93,9 +93,9 @@ func (bridge *KKPArgoBridge) Connect() {
 
 		err := bridge.Sync(kkpConnector, argoConnector)
 		if err != nil {
-			log.Println("Failed to sync bridge", err)
+			log.Printf("Failed to sync bridge: %s\n", err)
 		}
-		log.Println("Sync took", time.Since(start))
+		log.Printf("Sync took %d\n", time.Since(start))
 		if time.Since(start) < bridge.refreshTime {
 			time.Sleep(bridge.refreshTime - time.Since(start))
 		}
@@ -125,7 +125,7 @@ func (bridge *KKPArgoBridge) Sync(kkpConnector *KKPConnector, argoConnector *Arg
 
 		userClusters, err := seed.GetUserClusters()
 		if err != nil {
-			log.Println("Failed to get user clusters for seed", seed.Name, err)
+			log.Printf("Failed to get user clusters for seed %s: %s\n", seed.Name, err)
 			continue
 		}
 
@@ -134,7 +134,7 @@ func (bridge *KKPArgoBridge) Sync(kkpConnector *KKPConnector, argoConnector *Arg
 
 	}
 
-	log.Println("Got", len(allUserClusters), "UserClusters")
+	log.Printf("Got %d UserClusters\n", len(allUserClusters))
 
 	err = argoConnector.StoreClusters(allUserClusters, projects)
 	if err != nil {
@@ -164,13 +164,13 @@ clusters:
 	for _, existingCluster := range clusters {
 		clusterID := existingCluster.ObjectMeta.Labels[CLUSTER_ID_LABEL]
 		if len(clusterID) == 0 {
-			log.Println("Invalid existing Cluster Secret(missing "+CLUSTER_ID_LABEL+" label)", existingCluster.ObjectMeta.Name)
+			log.Printf("Invalid existing Cluster Secret(missing %s label) for Cluster %s\n", CLUSTER_ID_LABEL, existingCluster.ObjectMeta.Name)
 			continue
 		}
 		seedName := existingCluster.ObjectMeta.Labels[SEED_LABEL]
 
 		if len(seedName) == 0 {
-			log.Println("Invalid existing Cluster Secret(missing "+SEED_LABEL+" label)", existingCluster.ObjectMeta.Name)
+			log.Printf("Invalid existing Cluster Secret(missing %s label) for Cluster %s\n", SEED_LABEL, existingCluster.ObjectMeta.Name)
 			continue
 		}
 
@@ -183,10 +183,10 @@ clusters:
 		for _, seed := range seeds {
 			if seed.Name == seedName {
 				if bridge.cleanupRemovedClusters {
-					log.Println("Deleting removed cluster", existingCluster.ObjectMeta.Name)
+					log.Printf("Deleting removed cluster %s\n", existingCluster.ObjectMeta.Name)
 					err = argoConnector.RemoveCluster(existingCluster)
 					if err != nil {
-						log.Println("Failed to remove cluster", existingCluster.ObjectMeta.Name, err)
+						log.Printf("Failed to remove cluster %s: %s\n", existingCluster.ObjectMeta.Name, err)
 					}
 				}
 				continue clusters
@@ -199,20 +199,20 @@ clusters:
 				existingCluster.ObjectMeta.Labels[TIMEOUT_START_LABEL] = strconv.FormatInt(time.Now().UnixMilli(), 10)
 				err = argoConnector.UpdateCluster(existingCluster)
 				if err != nil {
-					log.Println("Failed to add timeout start to", existingCluster.ObjectMeta.Name, err)
+					log.Printf("Failed to add timeout start to %s: %s\n", existingCluster.ObjectMeta.Name, err)
 					continue clusters
 				}
 			} else {
 				startMillis, err := strconv.ParseInt(timeoutStart, 10, 64)
 				if err != nil {
-					log.Println("Failed to parse timeout start ("+TIMEOUT_START_LABEL+")", timeoutStart)
+					log.Printf("Failed to parse timeout start (%s) %s\n", TIMEOUT_START_LABEL, timeoutStart)
 					continue clusters
 				}
 				if time.Since(time.UnixMilli(startMillis)) > bridge.clusterTimeout {
-					log.Println("Cleaning up expired cluster", existingCluster.ObjectMeta.Name)
+					log.Printf("Cleaning up expired cluster %s\n", existingCluster.ObjectMeta.Name)
 					err = argoConnector.RemoveCluster(existingCluster)
 					if err != nil {
-						log.Println("Failed to remove cluster", existingCluster.ObjectMeta.Name, err)
+						log.Printf("Failed to remove cluster %s: %s\n", existingCluster.ObjectMeta.Name, err)
 					}
 					continue clusters
 				}

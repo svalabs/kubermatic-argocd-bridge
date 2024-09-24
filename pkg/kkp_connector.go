@@ -62,13 +62,13 @@ func (connector *KKPConnector) GetSeeds() ([]KKPSeed, error) {
 
 		kubeconfigSecret, err := connector.staticClient.CoreV1().Secrets(kubeconfigNamespace).Get(context.TODO(), kubeconfigName, metav1.GetOptions{})
 		if err != nil {
-			log.Println("Failed to get kubeconfig for seed ", name, err)
+			log.Printf("Failed to get kubeconfig for seed %s: %s\n", name, err)
 			continue
 		}
 
 		seed, err := NewSeed(name, kubeconfigSecret.Data["kubeconfig"])
 		if err != nil {
-			log.Println("Failed to create seed ", name, err)
+			log.Printf("Failed to create seed %s: %s\n", name, err)
 			continue
 		}
 		seeds = append(seeds, *seed)

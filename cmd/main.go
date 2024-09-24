@@ -37,13 +37,17 @@ func main() {
 
 	if *clusterSecretTemplateFlag != "" {
 		stat, err := os.Stat(*clusterSecretTemplateFlag)
-		if err == nil && !stat.IsDir() {
-			data, err := os.ReadFile(*clusterSecretTemplateFlag)
 
-			if err == nil {
-				clusterSecretTemplate = string(data)
-			}
+		if err != nil || stat.IsDir() {
+			log.Fatal("Failed to stat clusterSecretTemplateFlag: ", err)
 		}
+
+		data, err := os.ReadFile(*clusterSecretTemplateFlag)
+		if err != nil {
+			log.Fatal("Failed to read clusterSecretTemplateFlag: ", err)
+		}
+
+		clusterSecretTemplate = string(data)
 	}
 
 	kkpKubeConfig, err := GetKubeConfig(*kkpKubeConfigPath, *kkpServiceAccount)
@@ -73,7 +77,7 @@ func GetKubeConfig(kubeConfigPath string, useServiceAccount bool) (*restclient.C
 		log.Println("Using Service Account")
 		config, err := restclient.InClusterConfig()
 		if err != nil {
-			log.Println("No service Account found trying default kubeconfig: ", err)
+			log.Printf("No service Account found trying default kubeconfig: %s\n", err)
 			return nil, err
 		} else {
 			return config, nil

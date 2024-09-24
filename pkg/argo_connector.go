@@ -17,13 +17,14 @@ import (
 	"text/template"
 )
 
-const BASE_LABEL string = "kubermatic-argocd-bridge"
-const TIMEOUT_START_LABEL = BASE_LABEL + "/timeout-start"
-const MANAGED_LABEL = BASE_LABEL + "/managed"
-const CLUSTER_ID_LABEL = BASE_LABEL + "/cluster-id"
-const SEED_LABEL = BASE_LABEL + "/seed"
-
-const ARGO_CLUSTER_LABEL string = "argocd.argoproj.io/secret-type=cluster"
+const (
+	BASE_LABEL          string = "kubermatic-argocd-bridge"
+	TIMEOUT_START_LABEL        = BASE_LABEL + "/timeout-start"
+	MANAGED_LABEL              = BASE_LABEL + "/managed"
+	CLUSTER_ID_LABEL           = BASE_LABEL + "/cluster-id"
+	SEED_LABEL                 = BASE_LABEL + "/seed"
+	ARGO_CLUSTER_LABEL  string = "argocd.argoproj.io/secret-type=cluster"
+)
 
 type ArgoConnector struct {
 	client         *kubernetes.Clientset
@@ -84,7 +85,7 @@ func (connector *ArgoConnector) StoreClusters(userClusters []UserCluster, projec
 		reconciled++
 	}
 
-	log.Println("Reconciled Argo Secrets for", reconciled, "UserClusters")
+	log.Printf("Reconciled Argo Secrets for %d UserClusters\n", reconciled)
 
 	return nil
 }
