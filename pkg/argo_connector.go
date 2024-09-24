@@ -155,8 +155,6 @@ func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project K
 
 		return err
 	}
-
-	return nil
 }
 
 /**
@@ -247,11 +245,11 @@ func FlattenToStringStringMap(config interface{}) (map[string]string, error) {
 
 	unboxed, ok := config.(map[string]interface{})
 	if !ok {
-		json, err := json.Marshal(config)
+		jsonValue, err := json.Marshal(config)
 		if err != nil {
 			return nil, err
 		}
-		return nil, stdErrors.New("Invalid interface provided" + string(json))
+		return nil, stdErrors.New("Invalid interface provided" + string(jsonValue))
 	}
 
 	if unboxed != nil {
