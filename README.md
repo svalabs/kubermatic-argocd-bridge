@@ -25,9 +25,9 @@ We have a Helm Chart to deploy the bridge, which can be found [here](https://git
 #### Docker
 
 If you want to decouple this bridge from your kubernetes infrastructure or just want a quick dev/test environment, this also possible.
-At the moment we dont provide a public docker image, so you need to [build it yourself](#docker-image). Afterwards you can run it in your container environment for example docker:
+If you dont wont to use the public image, you can [build it yourself](#docker-image). Afterwards you can run it in your container environment for example docker:
 
-> docker run -v $HOME/.kube/config:/etc/kubeconfig -e KUBECONFIG=/etc/kubeconfig [image]
+> docker run -v $HOME/.kube/config:/etc/kubeconfig -e KUBECONFIG=/etc/kubeconfig ghcr.io/svalabs/kubermatic-argocd-bridge:[version]
 
 
 ### Anywhere else
@@ -35,7 +35,7 @@ At the moment we dont provide a public docker image, so you need to [build it yo
 It is possible to run this bridge anywhere outside kubernetes/containers by just running the compiled binary and
 providing it with kubeapi access for KKP and ArgoCD
 
-You can obtain the binary by [building it yourself](#raw-binary) and we will publish build binaries in the future.
+You can obtain the binary by [building it yourself](#raw-binary) or download if from the [releases](https://github.com/svalabs/kubermatic-argocd-bridge/releases).
 After that, you can run the binary with the required [parametes](#parameters)
 
 ### Parameters
