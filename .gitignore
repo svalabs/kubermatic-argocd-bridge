@@ -3,3 +3,7 @@
 kubermatic-argocd-bridge
 kubeconfig
 *.tgz
+
+release
+
+node_modules/

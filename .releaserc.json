@@ -1,0 +1,59 @@
+{
+  "branches": [
+    "main"
+  ],
+  "debug": true,
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "angular",
+        "releaseRules": [
+          {
+            "type": "fix",
+            "release": "patch"
+          },
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "type": "minor",
+            "release": "minor"
+          },
+          {
+            "type": "perf",
+            "release": "major"
+          },
+          {
+            "type": "major",
+            "release": "major"
+          }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "angular"
+      }
+    ],
+    "@semantic-release/changelog",
+    ["@semantic-release/github", {
+      "assets": [
+        {"path": "release/*.gz"},
+        {"path": "release/checksums.txt"}
+      ]
+    }],
+    "semantic-release-docker-tag",
+
+    ["@semantic-release/exec", {
+      "verifyConditionsCmd": "./verify-release.sh",
+      "prepareCmd": "./prepare-release.sh ${nextRelease.version} ${branch.name} ${commits.length} ${Date.now()}"
+    }],
+    ["@semantic-release/git", {
+      "assets": ["CHANGELOG.md", "chart/values.yaml"],
+      "message": "chore(release): ${nextRelease.version} [skip ci]"
+    }]
+  ]
+}
