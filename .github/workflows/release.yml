@@ -38,7 +38,7 @@ jobs:
           GOARCHES=("amd64" "arm64")
           for arch in "${GOARCHES[@]}"; do
             mkdir -p release/linux_$arch/
-            GOARCH=$arch GOOS=linux go build -o release/linux_$arch/kubermatic-argocd-bridge ./cmd
+            CGO_ENABLED=0 GOARCH=$arch GOOS=linux go build -o release/linux_$arch/kubermatic-argocd-bridge ./cmd
             gzip -c release/linux_$arch/kubermatic-argocd-bridge > release/kubermatic-argocd-bridge_linux_$arch.gz
           done
           sha256sum release/*.gz > release/checksums.txt
