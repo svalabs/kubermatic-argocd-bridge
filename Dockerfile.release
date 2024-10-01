@@ -2,4 +2,4 @@ FROM alpine
 ARG TARGETARCH
 COPY release/linux_${TARGETARCH}/kubermatic-argocd-bridge /usr/local/bin/kubermatic-argocd-bridge
 
-ENTRYPOINT "/usr/local/bin/kubermatic-argocd-bridge"
+ENTRYPOINT ["/usr/local/bin/kubermatic-argocd-bridge"]
