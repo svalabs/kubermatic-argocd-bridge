@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.0.2...v1.0.3) (2024-10-01)
+
+
+### Bug Fixes
+
+* cluster secret template, insecure should be a boolean ([4779923](https://github.com/svalabs/kubermatic-argocd-bridge/commit/4779923c8daaa437d8d1adb6da80be6225be37cd))
+
 ## [1.0.2](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.0.1...v1.0.2) (2024-10-01)
 
 
