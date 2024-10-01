@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.0.1...v1.0.2) (2024-10-01)
+
+
+### Bug Fixes
+
+* build binary with static linked dependencies ([d9661dc](https://github.com/svalabs/kubermatic-argocd-bridge/commit/d9661dc5d70303d65c0918f1e28707be92caffa5))
+
 ## [1.0.1](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.0.0...v1.0.1) (2024-10-01)
 
 
