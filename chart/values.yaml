@@ -1,7 +1,7 @@
 refreshInterval: "60s"
 image:
   registry: ghcr.io/svalabs/kubermatic-argocd-bridge
-  tag: 1.0.0
+  tag: 1.0.1
   imagePullPolicy: IfNotPresent
   # pullSecret: ""
 
