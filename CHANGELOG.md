@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.1.0...v1.1.1) (2025-01-21)
+
+
+### Bug Fixes
+
+* Initialize labels and annotations map if not existent yet ([570bd3e](https://github.com/svalabs/kubermatic-argocd-bridge/commit/570bd3eb721c1e6466c1bffa3a28ce53f797968f))
+
 # [1.1.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.0.3...v1.1.0) (2025-01-21)
 
 
