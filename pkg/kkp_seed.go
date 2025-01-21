@@ -6,12 +6,14 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"log"
 )
 
 type KKPSeed struct {
 	Name          string
+	KubeConfig    restclient.Config
 	dynamicClient dynamic.DynamicClient
 	staticClient  kubernetes.Interface
 	clusterSchema schema.GroupVersionResource
@@ -43,6 +45,7 @@ func NewSeed(name string, kubeconfig []byte) (*KKPSeed, error) {
 
 	return &KKPSeed{
 		Name:          name,
+		KubeConfig:    *loadedKubeConfig,
 		dynamicClient: *dynamicClient,
 		staticClient:  staticClient,
 		clusterSchema: schema.GroupVersionResource{
