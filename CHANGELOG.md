@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.0.3...v1.1.0) (2025-01-21)
+
+
+### Features
+
+* Add Kubeconfig of Seed to TemplateData ([9ed8d9d](https://github.com/svalabs/kubermatic-argocd-bridge/commit/9ed8d9d6c570ca17eea9a013c7d35e53a9145150))
+
 ## [1.0.3](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.0.2...v1.0.3) (2024-10-01)
 
 
