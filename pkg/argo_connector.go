@@ -142,6 +142,14 @@ func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project K
 	} else {
 		secret.Data = TransformStringStringMapValuesToByteArray(data)
 
+		if secret.Labels == nil {
+			secret.Labels = map[string]string{}
+		}
+
+		if secret.Annotations == nil {
+			secret.Annotations = map[string]string{}
+		}
+
 		for key, value := range labels {
 			secret.Labels[key] = value
 		}
