@@ -18,11 +18,11 @@ import (
 )
 
 const (
-	BASE_LABEL          string = "kubermatic-argocd-bridge"
-	TIMEOUT_START_LABEL        = BASE_LABEL + "/timeout-start"
-	MANAGED_LABEL              = BASE_LABEL + "/managed"
-	CLUSTER_ID_LABEL           = BASE_LABEL + "/cluster-id"
-	SEED_LABEL                 = BASE_LABEL + "/seed"
+	BASE_LABEL          string = "KubermaticArgocdBridge"
+	TIMEOUT_START_LABEL        = BASE_LABEL + "TimeoutStart"
+	MANAGED_LABEL              = BASE_LABEL + "Managed"
+	CLUSTER_ID_LABEL           = BASE_LABEL + "ClusterId"
+	SEED_LABEL                 = BASE_LABEL + "Seed"
 	ARGO_CLUSTER_LABEL  string = "argocd.argoproj.io/secret-type=cluster"
 )
 
