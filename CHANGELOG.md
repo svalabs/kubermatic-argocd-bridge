@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.1.2...v1.2.0) (2025-04-14)
+
+
+### Features
+
+* Merge pull request [#38](https://github.com/svalabs/kubermatic-argocd-bridge/issues/38) from svalabs/feat/cleanup-old-meta ([fbd48e7](https://github.com/svalabs/kubermatic-argocd-bridge/commit/fbd48e7a7bec1a5647f8d5900e1ab63ef8985d9d))
+
 ## [1.1.2](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.1.1...v1.1.2) (2025-02-19)
 
 
