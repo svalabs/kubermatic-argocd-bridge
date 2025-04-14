@@ -18,12 +18,14 @@ import (
 )
 
 const (
-	BASE_LABEL          string = "kubermatic-argocd-bridge"
-	TIMEOUT_START_LABEL        = BASE_LABEL + "/timeout-start"
-	MANAGED_LABEL              = BASE_LABEL + "/managed"
-	CLUSTER_ID_LABEL           = BASE_LABEL + "/cluster-id"
-	SEED_LABEL                 = BASE_LABEL + "/seed"
-	ARGO_CLUSTER_LABEL  string = "argocd.argoproj.io/secret-type=cluster"
+	BASE_LABEL                  string = "kubermatic-argocd-bridge"
+	TIMEOUT_START_LABEL                = BASE_LABEL + "/timeout-start"
+	MANAGED_LABEL                      = BASE_LABEL + "/managed"
+	CLUSTER_ID_LABEL                   = BASE_LABEL + "/cluster-id"
+	SEED_LABEL                         = BASE_LABEL + "/seed"
+	LAST_LABELS_ANNOTATION             = BASE_LABEL + "/last-labels"
+	LAST_ANNOTATIONS_ANNOTATION        = BASE_LABEL + "/last-annotations"
+	ARGO_CLUSTER_LABEL          string = "argocd.argoproj.io/secret-type=cluster"
 )
 
 type ArgoConnector struct {
@@ -159,10 +161,48 @@ func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project K
 
 		delete(secret.Labels, TIMEOUT_START_LABEL)
 
-		_, err := connector.client.CoreV1().Secrets(connector.namespace).Update(ctx, secret, metav1.UpdateOptions{})
+		err := connector.cleanUpMetadataMap(*secret, labels, secret.Labels, LAST_LABELS_ANNOTATION)
+		if err != nil {
+			return err
+		}
+		err = connector.cleanUpMetadataMap(*secret, annotations, secret.Annotations, LAST_ANNOTATIONS_ANNOTATION)
+		if err != nil {
+			return err
+		}
+
+		_, err = connector.client.CoreV1().Secrets(connector.namespace).Update(ctx, secret, metav1.UpdateOptions{})
 
 		return err
 	}
+}
+
+func (connector *ArgoConnector) cleanUpMetadataMap(secret v1.Secret, newData map[string]string, targetData map[string]string, annotationKey string) error {
+	if annotation, ok := secret.Annotations[annotationKey]; ok {
+		var oldKeys []string
+		err := json.Unmarshal([]byte(annotation), &oldKeys)
+
+		if err != nil {
+			return err
+		}
+
+		for _, oldKey := range oldKeys {
+			if _, ok := newData[oldKey]; !ok {
+				delete(targetData, oldKey)
+			}
+		}
+	}
+
+	var newKeys []string
+	for key := range newData {
+		newKeys = append(newKeys, key)
+	}
+	marshal, err := json.Marshal(newKeys)
+	if err != nil {
+		return err
+	}
+	secret.Annotations[annotationKey] = string(marshal)
+
+	return nil
 }
 
 /**
