@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.3.0...v1.3.1) (2025-05-22)
+
+
+### Bug Fixes
+
+* dont set annotations as labels ([a07168c](https://github.com/svalabs/kubermatic-argocd-bridge/commit/a07168cbc26268be25e795a4cd635089959c80a0))
+
 # [1.3.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.2.1...v1.3.0) (2025-05-22)
 
 
