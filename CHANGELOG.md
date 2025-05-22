@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.2.1...v1.3.0) (2025-05-22)
+
+
+### Features
+
+* add Annotations to template data ([94a9593](https://github.com/svalabs/kubermatic-argocd-bridge/commit/94a9593386b6e16afcb927575da1ae4f0c9b4717))
+
 ## [1.2.1](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.2.0...v1.2.1) (2025-05-08)
 
 
