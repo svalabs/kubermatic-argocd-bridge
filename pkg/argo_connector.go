@@ -258,7 +258,7 @@ func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project K
 		}
 
 		for k, v := range projectLabels {
-			labels[k] = v
+			annotations[k] = v
 		}
 	}
 
@@ -269,7 +269,7 @@ func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project K
 		}
 
 		for k, v := range clusterLabels {
-			labels[k] = v
+			annotations[k] = v
 		}
 	}
 
