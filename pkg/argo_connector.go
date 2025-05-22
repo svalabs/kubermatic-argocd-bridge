@@ -214,6 +214,7 @@ type TemplateData struct {
 	KubeConfig  restclient.Config
 	Project     KKPProject
 	Labels      map[string]string
+	Annotations map[string]string
 }
 
 /**
@@ -226,6 +227,7 @@ func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project K
 		return nil, err
 	}
 	labels := map[string]string{}
+	annotations := map[string]string{}
 
 	if project.RawData["metadata"].(map[string]interface{})["labels"] != nil {
 		projectLabels, err := FlattenToStringStringMap(project.RawData["metadata"].(map[string]interface{})["labels"])
@@ -249,12 +251,35 @@ func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project K
 		}
 	}
 
+	if project.RawData["metadata"].(map[string]interface{})["annotations"] != nil {
+		projectLabels, err := FlattenToStringStringMap(project.RawData["metadata"].(map[string]interface{})["annotations"])
+		if err != nil {
+			return nil, err
+		}
+
+		for k, v := range projectLabels {
+			labels[k] = v
+		}
+	}
+
+	if userCluster.RawData["metadata"].(map[string]interface{})["annotations"] != nil {
+		clusterLabels, err := FlattenToStringStringMap(userCluster.RawData["metadata"].(map[string]interface{})["annotations"])
+		if err != nil {
+			return nil, err
+		}
+
+		for k, v := range clusterLabels {
+			labels[k] = v
+		}
+	}
+
 	data := &TemplateData{
 		UserCluster: userCluster,
 		BaseLabel:   BASE_LABEL,
 		KubeConfig:  *kubeconfig,
 		Project:     project,
 		Labels:      labels,
+		Annotations: annotations,
 	}
 
 	buf := &bytes.Buffer{}
