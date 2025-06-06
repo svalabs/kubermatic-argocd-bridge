@@ -46,7 +46,7 @@ func NewBridge(kkpKubeConfig *restclient.Config, argoKubeConfig *restclient.Conf
 	if err != nil {
 		return nil, err
 	}
-	kkpStaticClient, err := kubernetes.NewForConfig(argoKubeConfig)
+	kkpStaticClient, err := kubernetes.NewForConfig(kkpKubeConfig)
 	if err != nil {
 		return nil, err
 	}
