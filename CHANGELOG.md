@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.3.1...v1.3.2) (2025-06-06)
+
+
+### Bug Fixes
+
+* Use right kubeConfig for the kkpStaticClient, fixing [#52](https://github.com/svalabs/kubermatic-argocd-bridge/issues/52) ([fac9978](https://github.com/svalabs/kubermatic-argocd-bridge/commit/fac99782c795b9fab9b138bfe1caaa6de4413c1d))
+
 ## [1.3.1](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.3.0...v1.3.1) (2025-05-22)
 
 
