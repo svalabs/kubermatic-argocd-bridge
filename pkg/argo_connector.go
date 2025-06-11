@@ -5,6 +5,9 @@ import (
 	"context"
 	"encoding/base64"
 	stdErrors "errors"
+	"log"
+	"text/template"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,8 +16,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"log"
-	"text/template"
 )
 
 const (
@@ -113,6 +114,8 @@ func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project K
 		return err
 	}
 
+	labels["argocd.argoproj.io/auto-label-cluster-info"] = "true"
+
 	annotations, err := FlattenToStringStringMap(filledTemplate["annotations"])
 
 	if err != nil {
@@ -158,6 +161,8 @@ func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project K
 		for key, value := range annotations {
 			secret.Annotations[key] = value
 		}
+
+		secret.Labels["argocd.argoproj.io/auto-label-cluster-info"] = "true"
 
 		delete(secret.Labels, TIMEOUT_START_LABEL)
 
