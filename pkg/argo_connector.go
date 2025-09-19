@@ -260,23 +260,23 @@ func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project K
 	}
 
 	if project.RawData["metadata"].(map[string]interface{})["annotations"] != nil {
-		projectLabels, err := FlattenToStringStringMap(project.RawData["metadata"].(map[string]interface{})["annotations"])
+		projectAnnotations, err := FlattenToStringStringMap(project.RawData["metadata"].(map[string]interface{})["annotations"])
 		if err != nil {
 			return nil, err
 		}
 
-		for k, v := range projectLabels {
+		for k, v := range projectAnnotations {
 			annotations[k] = v
 		}
 	}
 
 	if userCluster.RawData["metadata"].(map[string]interface{})["annotations"] != nil {
-		clusterLabels, err := FlattenToStringStringMap(userCluster.RawData["metadata"].(map[string]interface{})["annotations"])
+		clusterAnnotations, err := FlattenToStringStringMap(userCluster.RawData["metadata"].(map[string]interface{})["annotations"])
 		if err != nil {
 			return nil, err
 		}
 
-		for k, v := range clusterLabels {
+		for k, v := range clusterAnnotations {
 			annotations[k] = v
 		}
 	}
