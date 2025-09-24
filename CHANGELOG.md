@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.3.2...v1.4.0) (2025-09-24)
+
+
+### Features
+
+* Support for multiple KKP clusters ([7839b19](https://github.com/svalabs/kubermatic-argocd-bridge/commit/7839b19ae01bc670f6748438a9f9a5a783624e5e)), closes [#79](https://github.com/svalabs/kubermatic-argocd-bridge/issues/79)
+
 ## [1.3.2](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.3.1...v1.3.2) (2025-06-06)
 
 
