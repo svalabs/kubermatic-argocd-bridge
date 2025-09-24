@@ -15,6 +15,7 @@ import (
 )
 
 type KKPArgoBridge struct {
+	kkpClusterName         string
 	argoCDNamespace        string
 	argoClient             *kubernetes.Clientset
 	kkpDynamicClient       *dynamic.DynamicClient
@@ -26,7 +27,7 @@ type KKPArgoBridge struct {
 	clusterTimeout         time.Duration
 }
 
-func NewBridge(kkpKubeConfig *restclient.Config, argoKubeConfig *restclient.Config, argoCdNamespace string, duration time.Duration, clusterSecretTemplate string, cleanupRemovedClusters bool, cleanupTimedClusters bool, clusterTimeout time.Duration) (*KKPArgoBridge, error) {
+func NewBridge(kkpKubeConfig *restclient.Config, kkpClusterName string, argoKubeConfig *restclient.Config, argoCdNamespace string, duration time.Duration, clusterSecretTemplate string, cleanupRemovedClusters bool, cleanupTimedClusters bool, clusterTimeout time.Duration) (*KKPArgoBridge, error) {
 	if kkpKubeConfig == nil {
 		return nil, errors.New("kkpKubeConfig is nil")
 	}
@@ -51,6 +52,7 @@ func NewBridge(kkpKubeConfig *restclient.Config, argoKubeConfig *restclient.Conf
 		return nil, err
 	}
 	return &KKPArgoBridge{
+		kkpClusterName:         kkpClusterName,
 		argoCDNamespace:        argoCdNamespace,
 		argoClient:             argoClient,
 		kkpDynamicClient:       kkpClient,
@@ -67,7 +69,7 @@ func (bridge *KKPArgoBridge) Connect() {
 	log.Println("Creating Bridge")
 
 	kkpConnector := NewKKPConnector(bridge.kkpDynamicClient, bridge.kkpStaticClient)
-	argoConnector := NewArgoConnector(bridge.argoClient, bridge.argoCDNamespace, bridge.clusterSecretTemplate)
+	argoConnector := NewArgoConnector(bridge.argoClient, bridge.argoCDNamespace, bridge.kkpClusterName, bridge.clusterSecretTemplate)
 
 	err := kkpConnector.VerifyCRD()
 	if err != nil {

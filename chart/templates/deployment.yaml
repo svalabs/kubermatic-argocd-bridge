@@ -28,6 +28,9 @@ spec:
             - "-cleanup-removed-clusters={{ .Values.cleanup.removed.enabled }}"
             - "-cleanup-timed-clusters={{ .Values.cleanup.timeout.enabled }}"
             - "-cluster-timeout-time={{ .Values.cleanup.timeout.timeout }}"
+            {{ if and .Values.kkp.kkpClusterName }}
+            - "-kkp-cluster-name={{ .Values.kkp.kkpClusterName }}"
+            {{ end }}
             {{ if and .Values.kkp.auth.kubeconfig.secretName .Values.kkp.auth.kubeconfig.secretKey }}
             - "-kkp-kubeconfig=/etc/kubeconfig-kkp"
             {{ end }}

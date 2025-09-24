@@ -19,6 +19,7 @@ kkp:
     kubeconfig: { }
       # secretName: "kkp-kubeconfig"
       # secretKey: "kubeconfig"
+  # kkpClusterName: "my-kkp-cluster"
 argo:
   namespace: "argocd"
   auth:

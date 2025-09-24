@@ -22,6 +22,7 @@ const (
 	TIMEOUT_START_LABEL                = BASE_LABEL + "/timeout-start"
 	MANAGED_LABEL                      = BASE_LABEL + "/managed"
 	CLUSTER_ID_LABEL                   = BASE_LABEL + "/cluster-id"
+	KKP_CLUSTER_LABEL                  = BASE_LABEL + "/kkp-cluster"
 	SEED_LABEL                         = BASE_LABEL + "/seed"
 	LAST_LABELS_ANNOTATION             = BASE_LABEL + "/last-labels"
 	LAST_ANNOTATIONS_ANNOTATION        = BASE_LABEL + "/last-annotations"
@@ -31,10 +32,11 @@ const (
 type ArgoConnector struct {
 	client         *kubernetes.Clientset
 	namespace      string
+	kkpClusterName string
 	secretTemplate *template.Template
 }
 
-func NewArgoConnector(client *kubernetes.Clientset, namespace string, clusterSecretTemplate string) *ArgoConnector {
+func NewArgoConnector(client *kubernetes.Clientset, namespace string, kkpClusterName string, clusterSecretTemplate string) *ArgoConnector {
 	templ, err := template.New("secret").Funcs(template.FuncMap{
 		"base64": func(b []byte) string {
 			return base64.StdEncoding.EncodeToString(b)
@@ -43,7 +45,7 @@ func NewArgoConnector(client *kubernetes.Clientset, namespace string, clusterSec
 	if err != nil {
 		log.Fatal("Failed to parse Secret template", err)
 	}
-	return &ArgoConnector{client, namespace, templ}
+	return &ArgoConnector{client, namespace, kkpClusterName, templ}
 }
 
 func (connector *ArgoConnector) VerifyNamespace() error {
@@ -52,8 +54,13 @@ func (connector *ArgoConnector) VerifyNamespace() error {
 }
 
 func (connector *ArgoConnector) CurrentClusters() ([]v1.Secret, error) {
+	labelSelector := ARGO_CLUSTER_LABEL + "," + MANAGED_LABEL + "=true"
+	if connector.kkpClusterName != "" {
+		labelSelector += "," + KKP_CLUSTER_LABEL + "=" + connector.kkpClusterName
+	}
+
 	list, err := connector.client.CoreV1().Secrets(connector.namespace).List(context.TODO(), metav1.ListOptions{
-		LabelSelector: ARGO_CLUSTER_LABEL + "," + MANAGED_LABEL + "=true",
+		LabelSelector: labelSelector,
 	})
 
 	if err != nil {
@@ -79,7 +86,7 @@ func (connector *ArgoConnector) StoreClusters(userClusters []UserCluster, projec
 			}
 		}
 
-		err := connector.StoreClusterI(userCluster, project)
+		err := connector.StoreClusterI(userCluster, project, connector.kkpClusterName)
 		if err != nil {
 			return err
 		}
@@ -95,9 +102,9 @@ func (connector *ArgoConnector) StoreClusters(userClusters []UserCluster, projec
 /**
  * Builds the desired Secret and stores in inside the cluster
  */
-func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project KKPProject) error {
+func (connector *ArgoConnector) StoreClusterI(userCluster UserCluster, project KKPProject, kkpClusterName string) error {
 
-	filledTemplateRaw, err := connector.ParseTemplate(userCluster, project)
+	filledTemplateRaw, err := connector.ParseTemplate(userCluster, project, kkpClusterName)
 
 	if err != nil {
 		return err
@@ -209,18 +216,19 @@ func (connector *ArgoConnector) cleanUpMetadataMap(secret v1.Secret, newData map
  * Accessable data during templating
  */
 type TemplateData struct {
-	UserCluster UserCluster
-	BaseLabel   string
-	KubeConfig  restclient.Config
-	Project     KKPProject
-	Labels      map[string]string
-	Annotations map[string]string
+	UserCluster    UserCluster
+	BaseLabel      string
+	KKPClusterName string
+	KubeConfig     restclient.Config
+	Project        KKPProject
+	Labels         map[string]string
+	Annotations    map[string]string
 }
 
 /**
  * Takes the provided Secret Template and renders it with different supported data
  */
-func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project KKPProject) (interface{}, error) {
+func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project KKPProject, kkpClusterName string) (interface{}, error) {
 	kubeconfig, err := clientcmd.RESTConfigFromKubeConfig(userCluster.kubeconfig)
 
 	if err != nil {
@@ -252,34 +260,35 @@ func (contector *ArgoConnector) ParseTemplate(userCluster UserCluster, project K
 	}
 
 	if project.RawData["metadata"].(map[string]interface{})["annotations"] != nil {
-		projectLabels, err := FlattenToStringStringMap(project.RawData["metadata"].(map[string]interface{})["annotations"])
+		projectAnnotations, err := FlattenToStringStringMap(project.RawData["metadata"].(map[string]interface{})["annotations"])
 		if err != nil {
 			return nil, err
 		}
 
-		for k, v := range projectLabels {
+		for k, v := range projectAnnotations {
 			annotations[k] = v
 		}
 	}
 
 	if userCluster.RawData["metadata"].(map[string]interface{})["annotations"] != nil {
-		clusterLabels, err := FlattenToStringStringMap(userCluster.RawData["metadata"].(map[string]interface{})["annotations"])
+		clusterAnnotations, err := FlattenToStringStringMap(userCluster.RawData["metadata"].(map[string]interface{})["annotations"])
 		if err != nil {
 			return nil, err
 		}
 
-		for k, v := range clusterLabels {
+		for k, v := range clusterAnnotations {
 			annotations[k] = v
 		}
 	}
 
 	data := &TemplateData{
-		UserCluster: userCluster,
-		BaseLabel:   BASE_LABEL,
-		KubeConfig:  *kubeconfig,
-		Project:     project,
-		Labels:      labels,
-		Annotations: annotations,
+		UserCluster:    userCluster,
+		BaseLabel:      BASE_LABEL,
+		KKPClusterName: kkpClusterName,
+		KubeConfig:     *kubeconfig,
+		Project:        project,
+		Labels:         labels,
+		Annotations:    annotations,
 	}
 
 	buf := &bytes.Buffer{}

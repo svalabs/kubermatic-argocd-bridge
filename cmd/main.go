@@ -22,6 +22,7 @@ func main() {
 
 	kkpKubeConfigPath := flag.String("kkp-kubeconfig", "", "Provide the path to the KKP KubeConfig")
 	kkpServiceAccount := flag.Bool("kkp-serviceaccount", true, "If the default service account should be used for kkp connection")
+	kkpClusterName := flag.String("kkp-cluster-name", "", "If set, add this string as identifier to your cluster secrets. Useful if you have multiple KKP clusters.")
 	argoKubeConfigPath := flag.String("argo-kubeconfig", "", "Provide the path to the KKP KubeConfig")
 	argoServiceAccount := flag.Bool("argo-serviceaccount", true, "If the default service account should be used for the argocd connection")
 	argoCdNamespace := flag.String("argo-namespace", "argocd", "ArgoCD Namespace")
@@ -59,7 +60,7 @@ func main() {
 		log.Fatal("Failed to generate Argo KKP KubeConfig: ", err)
 	}
 
-	kkpArgoBridge, err := bridge.NewBridge(kkpKubeConfig, argoKubeConfig, *argoCdNamespace, *refreshInterval, clusterSecretTemplate, *cleanupRemovedClusters, *cleanupTimedClusters, *clusterTimeoutTime)
+	kkpArgoBridge, err := bridge.NewBridge(kkpKubeConfig, *kkpClusterName, argoKubeConfig, *argoCdNamespace, *refreshInterval, clusterSecretTemplate, *cleanupRemovedClusters, *cleanupTimedClusters, *clusterTimeoutTime)
 
 	if err != nil {
 		log.Fatal("Failed to initiate bridge", err)
