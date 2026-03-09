@@ -1,6 +1,6 @@
 module github.com/svalabs/kubermatic-argocd-bridge
 
-go 1.25.0
+go 1.26.1
 
 require (
 	k8s.io/api v0.35.2
