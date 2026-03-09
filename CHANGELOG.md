@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.4.0...v1.4.1) (2026-03-09)
+
+
+### Bug Fixes
+
+* Updated dependencies for nodejs and go ([6464fff](https://github.com/svalabs/kubermatic-argocd-bridge/commit/6464fff6c1f8b9ea25f9930fbf8ef5175d1eb396))
+
 # [1.4.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.3.2...v1.4.0) (2025-09-24)
 
 
