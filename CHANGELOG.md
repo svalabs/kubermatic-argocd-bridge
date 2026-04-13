@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.4.1...v1.4.2) (2026-04-13)
+
+
+### Bug Fixes
+
+* update dependencies (Merge pull request [#104](https://github.com/svalabs/kubermatic-argocd-bridge/issues/104) from svalabs/dependabot/go_modules/k8s.io/client-go-0.35.3) ([2404924](https://github.com/svalabs/kubermatic-argocd-bridge/commit/24049249cd8c0eb557f3b4c3940a291174904e9d))
+
 ## [1.4.1](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.4.0...v1.4.1) (2026-03-09)
 
 
