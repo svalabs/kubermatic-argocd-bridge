@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.4.3...v1.5.0) (2026-05-11)
+
+
+### Features
+
+* Add option to load MachineDeployment infos for Secret Template ([f762c42](https://github.com/svalabs/kubermatic-argocd-bridge/commit/f762c428636eda31d285c53e8b4a63aa1c603729)), closes [#116](https://github.com/svalabs/kubermatic-argocd-bridge/issues/116)
+
 ## [1.4.3](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.4.2...v1.4.3) (2026-05-11)
 
 
