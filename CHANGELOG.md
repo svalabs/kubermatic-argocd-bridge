@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.5.0...v1.6.0) (2026-05-11)
+
+
+### Features
+
+* trigger release ([30da5b3](https://github.com/svalabs/kubermatic-argocd-bridge/commit/30da5b3f36c051c5f2f8d4ff7f8bd8e54967f2d4))
+
 # [1.5.0](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.4.3...v1.5.0) (2026-05-11)
 
 
