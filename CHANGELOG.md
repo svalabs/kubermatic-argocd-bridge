@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.4.2...v1.4.3) (2026-05-11)
+
+
+### Bug Fixes
+
+* updated dependencies ([277bf4b](https://github.com/svalabs/kubermatic-argocd-bridge/commit/277bf4b3f39157127b202d8ed559ac19a0bb4b89)), closes [#115](https://github.com/svalabs/kubermatic-argocd-bridge/issues/115)
+
 ## [1.4.2](https://github.com/svalabs/kubermatic-argocd-bridge/compare/v1.4.1...v1.4.2) (2026-04-13)
 
 
