@@ -74,4 +74,3 @@ cd cmd
 go build -o kubermatic-argocd-bridge
 ```
 
-
