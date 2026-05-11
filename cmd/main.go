@@ -3,14 +3,15 @@ package main
 import (
 	_ "embed"
 	"flag"
-	bridge "github.com/svalabs/kubermatic-argocd-bridge/pkg"
-	restclient "k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 	"log"
 	"os"
 	"path/filepath"
 	"time"
+
+	bridge "github.com/svalabs/kubermatic-argocd-bridge/pkg"
+	restclient "k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 // Default cluster secret template
@@ -31,6 +32,7 @@ func main() {
 	cleanupRemovedClusters := flag.Bool("cleanup-removed-clusters", false, "Cleanup removed clusters")
 	cleanupTimedClusters := flag.Bool("cleanup-timed-clusters", false, "Cleanup clusters from removed/unavailable clusters")
 	clusterTimeoutTime := flag.Duration("cluster-timeout-time", 30*time.Second, "Time before a cluster gets deleted, when cleanup-timed-clusters is enabled ")
+	fetchMachineDeployments := flag.Bool("fetch-machine-deployments", false, "Fetch machine deployments from UserCluster and make them available to the Cluster Secret Template")
 
 	flag.Parse()
 
@@ -60,7 +62,7 @@ func main() {
 		log.Fatal("Failed to generate Argo KKP KubeConfig: ", err)
 	}
 
-	kkpArgoBridge, err := bridge.NewBridge(kkpKubeConfig, *kkpClusterName, argoKubeConfig, *argoCdNamespace, *refreshInterval, clusterSecretTemplate, *cleanupRemovedClusters, *cleanupTimedClusters, *clusterTimeoutTime)
+	kkpArgoBridge, err := bridge.NewBridge(kkpKubeConfig, *kkpClusterName, argoKubeConfig, *argoCdNamespace, *refreshInterval, clusterSecretTemplate, *cleanupRemovedClusters, *cleanupTimedClusters, *clusterTimeoutTime, *fetchMachineDeployments)
 
 	if err != nil {
 		log.Fatal("Failed to initiate bridge", err)

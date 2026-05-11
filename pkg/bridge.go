@@ -8,26 +8,28 @@ import (
 	"syscall"
 	"time"
 
+	"log"
+
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
-	"log"
 )
 
 type KKPArgoBridge struct {
-	kkpClusterName         string
-	argoCDNamespace        string
-	argoClient             *kubernetes.Clientset
-	kkpDynamicClient       *dynamic.DynamicClient
-	kkpStaticClient        *kubernetes.Clientset
-	refreshTime            time.Duration
-	clusterSecretTemplate  string
-	cleanupRemovedClusters bool
-	cleanupTimedClusters   bool
-	clusterTimeout         time.Duration
+	kkpClusterName          string
+	argoCDNamespace         string
+	argoClient              *kubernetes.Clientset
+	kkpDynamicClient        *dynamic.DynamicClient
+	kkpStaticClient         *kubernetes.Clientset
+	refreshTime             time.Duration
+	clusterSecretTemplate   string
+	cleanupRemovedClusters  bool
+	cleanupTimedClusters    bool
+	clusterTimeout          time.Duration
+	fetchMachineDeployments bool
 }
 
-func NewBridge(kkpKubeConfig *restclient.Config, kkpClusterName string, argoKubeConfig *restclient.Config, argoCdNamespace string, duration time.Duration, clusterSecretTemplate string, cleanupRemovedClusters bool, cleanupTimedClusters bool, clusterTimeout time.Duration) (*KKPArgoBridge, error) {
+func NewBridge(kkpKubeConfig *restclient.Config, kkpClusterName string, argoKubeConfig *restclient.Config, argoCdNamespace string, duration time.Duration, clusterSecretTemplate string, cleanupRemovedClusters bool, cleanupTimedClusters bool, clusterTimeout time.Duration, fetchMachineDeployments bool) (*KKPArgoBridge, error) {
 	if kkpKubeConfig == nil {
 		return nil, errors.New("kkpKubeConfig is nil")
 	}
@@ -52,23 +54,24 @@ func NewBridge(kkpKubeConfig *restclient.Config, kkpClusterName string, argoKube
 		return nil, err
 	}
 	return &KKPArgoBridge{
-		kkpClusterName:         kkpClusterName,
-		argoCDNamespace:        argoCdNamespace,
-		argoClient:             argoClient,
-		kkpDynamicClient:       kkpClient,
-		kkpStaticClient:        kkpStaticClient,
-		refreshTime:            duration,
-		clusterSecretTemplate:  clusterSecretTemplate,
-		cleanupRemovedClusters: cleanupRemovedClusters,
-		cleanupTimedClusters:   cleanupTimedClusters,
-		clusterTimeout:         clusterTimeout,
+		kkpClusterName:          kkpClusterName,
+		argoCDNamespace:         argoCdNamespace,
+		argoClient:              argoClient,
+		kkpDynamicClient:        kkpClient,
+		kkpStaticClient:         kkpStaticClient,
+		refreshTime:             duration,
+		clusterSecretTemplate:   clusterSecretTemplate,
+		cleanupRemovedClusters:  cleanupRemovedClusters,
+		cleanupTimedClusters:    cleanupTimedClusters,
+		clusterTimeout:          clusterTimeout,
+		fetchMachineDeployments: fetchMachineDeployments,
 	}, nil
 }
 
 func (bridge *KKPArgoBridge) Connect() {
 	log.Println("Creating Bridge")
 
-	kkpConnector := NewKKPConnector(bridge.kkpDynamicClient, bridge.kkpStaticClient)
+	kkpConnector := NewKKPConnector(bridge.kkpDynamicClient, bridge.kkpStaticClient, bridge.fetchMachineDeployments)
 	argoConnector := NewArgoConnector(bridge.argoClient, bridge.argoCDNamespace, bridge.kkpClusterName, bridge.clusterSecretTemplate)
 
 	err := kkpConnector.VerifyCRD()

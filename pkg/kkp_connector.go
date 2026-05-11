@@ -2,18 +2,20 @@ package pkg
 
 import (
 	"context"
+	"log"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
-	"log"
 )
 
 type KKPConnector struct {
-	dynamicClient dynamic.DynamicClient
-	staticClient  kubernetes.Clientset
-	seedSchema    schema.GroupVersionResource
-	projectSchema schema.GroupVersionResource
+	dynamicClient           dynamic.DynamicClient
+	staticClient            kubernetes.Clientset
+	seedSchema              schema.GroupVersionResource
+	projectSchema           schema.GroupVersionResource
+	fetchMachineDeployments bool
 }
 type KKPProject struct {
 	Name    string
@@ -21,7 +23,7 @@ type KKPProject struct {
 	RawData map[string]interface{}
 }
 
-func NewKKPConnector(dynamicClient *dynamic.DynamicClient, staticClient *kubernetes.Clientset) *KKPConnector {
+func NewKKPConnector(dynamicClient *dynamic.DynamicClient, staticClient *kubernetes.Clientset, fetchMachineDeployments bool) *KKPConnector {
 
 	return &KKPConnector{
 		dynamicClient: *dynamicClient,
@@ -36,6 +38,7 @@ func NewKKPConnector(dynamicClient *dynamic.DynamicClient, staticClient *kuberne
 			Version:  "v1",
 			Resource: "projects",
 		},
+		fetchMachineDeployments: fetchMachineDeployments,
 	}
 }
 
@@ -59,6 +62,10 @@ func (connector *KKPConnector) GetSeeds() ([]KKPSeed, error) {
 		kubeconfigSpec := spec["kubeconfig"].(map[string]interface{})
 		kubeconfigName := kubeconfigSpec["name"].(string)
 		kubeconfigNamespace := kubeconfigSpec["namespace"].(string)
+		var managementProxySettings map[string]interface{}
+		if spec["managementProxySettings"] != nil {
+			managementProxySettings = spec["managementProxySettings"].(map[string]interface{})
+		}
 
 		kubeconfigSecret, err := connector.staticClient.CoreV1().Secrets(kubeconfigNamespace).Get(context.TODO(), kubeconfigName, metav1.GetOptions{})
 		if err != nil {
@@ -66,7 +73,7 @@ func (connector *KKPConnector) GetSeeds() ([]KKPSeed, error) {
 			continue
 		}
 
-		seed, err := NewSeed(name, kubeconfigSecret.Data["kubeconfig"])
+		seed, err := NewSeed(name, kubeconfigSecret.Data["kubeconfig"], connector.fetchMachineDeployments, managementProxySettings)
 		if err != nil {
 			log.Printf("Failed to create seed %s: %s\n", name, err)
 			continue
