@@ -40,6 +40,9 @@ spec:
             {{ if and .Values.clusterSecretTemplate.configmapName .Values.clusterSecretTemplate.configmapKey }}
             - "-cluster-secret-template=/etc/cluster-secret-template.yaml"
             {{ end }}
+            {{ if .Values.kkp.fetchMachineDeployments }}
+            - "-fetch-machine-deployments"
+            {{ end }}
           image: "{{ .Values.image.registry }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.imagePullPolicy }}
           name: kubermatic-argocd-bridge
