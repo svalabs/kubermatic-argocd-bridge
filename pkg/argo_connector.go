@@ -5,6 +5,9 @@ import (
 	"context"
 	"encoding/base64"
 	stdErrors "errors"
+	"log"
+	"text/template"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,8 +16,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"log"
-	"text/template"
+
+	"github.com/Masterminds/sprig/v3"
 )
 
 const (
@@ -37,11 +40,9 @@ type ArgoConnector struct {
 }
 
 func NewArgoConnector(client *kubernetes.Clientset, namespace string, kkpClusterName string, clusterSecretTemplate string) *ArgoConnector {
-	templ, err := template.New("secret").Funcs(template.FuncMap{
-		"base64": func(b []byte) string {
-			return base64.StdEncoding.EncodeToString(b)
-		},
-	}).Parse(clusterSecretTemplate)
+	funcMap := sprig.TxtFuncMap()
+	funcMap["base64"] = base64.StdEncoding.EncodeToString
+	templ, err := template.New("secret").Funcs(funcMap).Parse(clusterSecretTemplate)
 	if err != nil {
 		log.Fatal("Failed to parse Secret template", err)
 	}
