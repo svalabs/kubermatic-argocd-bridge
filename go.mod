@@ -4,8 +4,8 @@ go 1.26.1
 
 require (
 	github.com/Masterminds/sprig/v3 v3.3.0
-	k8s.io/api v0.36.0
-	k8s.io/apimachinery v0.36.0
+	k8s.io/api v0.36.1
+	k8s.io/apimachinery v0.36.1
 	k8s.io/client-go v0.36.0
 )
 
